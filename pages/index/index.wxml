@@ -1,0 +1,364 @@
+<!--pages/index/index.wxml-->
+<view class="app-shell">
+
+  <!-- Ambient background elements -->
+  <view class="ambient ambient--top"></view>
+  <view class="ambient ambient--bot"></view>
+
+  <!-- ========== HEADER ========== -->
+  <view class="masthead">
+    <view class="masthead__rule"></view>
+    <view class="masthead__brand">
+      <text class="masthead__wordmark">闪念课堂助手</text>
+      <text class="masthead__volume">Beta</text>
+    </view>
+    <text class="masthead__dek">智能学习伴侣 · 专注思考的工具</text>
+    <view class="masthead__rule masthead__rule--short"></view>
+  </view>
+
+  <!-- ========== TAB SWITCHER (Bookmark style) ========== -->
+  <view class="folio">
+    <view
+      class="folio__tab {{activeTab === 0 ? 'folio__tab--live' : ''}}"
+      bindtap="switchTab"
+      data-index="0"
+    >
+      <view class="folio__tab-inner">
+        <view class="folio__tab-sigil folio__tab-sigil--diamond"></view>
+        <text class="folio__tab-label">课堂</text>
+      </view>
+      <view class="folio__tab-rule" wx:if="{{activeTab === 0}}"></view>
+    </view>
+    <view
+      class="folio__tab {{activeTab === 1 ? 'folio__tab--live' : ''}}"
+      bindtap="switchTab"
+      data-index="1"
+    >
+      <view class="folio__tab-inner">
+        <view class="folio__tab-sigil folio__tab-sigil--square"></view>
+        <text class="folio__tab-label">诊断</text>
+      </view>
+      <view class="folio__tab-rule" wx:if="{{activeTab === 1}}"></view>
+    </view>
+    <view
+      class="folio__tab {{activeTab === 2 ? 'folio__tab--live' : ''}}"
+      bindtap="switchTab"
+      data-index="2"
+    >
+      <view class="folio__tab-inner">
+        <view class="folio__tab-sigil folio__tab-sigil--circle"></view>
+        <text class="folio__tab-label">历史</text>
+      </view>
+      <view class="folio__tab-rule" wx:if="{{activeTab === 2}}"></view>
+    </view>
+    <view class="folio__spine"></view>
+  </view>
+
+  <!-- ==================== TAB 0: 课堂助手 ==================== -->
+  <view class="manuscript" wx:if="{{activeTab === 0}}">
+    <scroll-view scroll-y="true" class="manuscript__scroll" enhanced show-scrollbar="{{false}}">
+
+      <!-- Upload block -->
+      <view class="block">
+        <view class="block__label">
+          <text class="block__label-num">01</text>
+          <text class="block__label-text">拍摄 / 上传</text>
+        </view>
+
+        <view class="dropzone" bindtap="handleUpload">
+          <block wx:if="{{classroom.uploading}}">
+            <view class="dropzone__state">
+              <view class="spinner spinner--amber"></view>
+              <text class="dropzone__state-text">正在上传至云存储…</text>
+            </view>
+          </block>
+          <block wx:elif="{{!classroom.imagePath}}">
+            <view class="dropzone__state">
+              <view class="dropzone__crosshair">
+                <view class="dropzone__crosshair-v"></view>
+                <view class="dropzone__crosshair-h"></view>
+              </view>
+              <text class="dropzone__state-text">点击拍照或从相册选择</text>
+              <text class="dropzone__state-note">JPG / PNG · 建议清晰拍摄</text>
+            </view>
+          </block>
+          <block wx:else>
+            <image class="dropzone__preview" src="{{classroom.imagePath}}" mode="aspectFit"></image>
+            <view class="dropzone__overlay">
+              <text class="dropzone__overlay-text">点击更换图片</text>
+            </view>
+            <view class="dropzone__badge" wx:if="{{classroom.fileID}}">
+              <text class="dropzone__badge-text">云存储 {{classroom.fileID}}</text>
+            </view>
+          </block>
+        </view>
+      </view>
+
+      <!-- Preview (after upload) -->
+      <view class="block" wx:if="{{classroom.imagePath}}">
+        <view class="block__label block__label--with-action">
+          <view class="block__label-left">
+            <text class="block__label-num">02</text>
+            <text class="block__label-text">预览</text>
+          </view>
+          <view class="block__label-action" bindtap="handleClearImage">
+            <text class="block__label-action-text">清除</text>
+          </view>
+        </view>
+        <image class="preview-figure" src="{{classroom.imagePath}}" mode="widthFix"></image>
+      </view>
+
+      <!-- Generate button -->
+      <view class="block">
+        <button
+          class="cta cta--primary {{classroom.loading ? 'cta--busy' : ''}}"
+          bindtap="handleGenerate"
+          disabled="{{classroom.loading || classroom.uploading || !classroom.fileID}}"
+          hover-class="cta--pressed"
+        >
+          <block wx:if="{{classroom.loading}}">
+            <view class="spinner spinner--light"></view>
+            <text class="cta__text">AI 正在分析图像…</text>
+          </block>
+          <block wx:else>
+            <text class="cta__sigil">+</text>
+            <text class="cta__text">生成核心摘要</text>
+          </block>
+        </button>
+        <text class="cta__footnote" wx:if="{{classroom.uploading}}">正在上传图片到云存储…</text>
+        <text class="cta__footnote" wx:elif="{{!classroom.fileID && classroom.imagePath}}">等待云存储上传完成</text>
+        <text class="cta__footnote" wx:elif="{{!classroom.imagePath}}">请先拍摄或上传图片</text>
+      </view>
+
+      <!-- AI Result -->
+      <view class="block block--result" wx:if="{{classroom.result}}">
+        <view class="block__label">
+          <text class="block__label-num">03</text>
+          <text class="block__label-text">核心摘要</text>
+        </view>
+        <view class="prose">
+          <rich-text nodes="{{classroom.resultNodes}}"></rich-text>
+        </view>
+        <view class="block__finis"><text class="block__finis-text">— fin —</text></view>
+      </view>
+
+      <view class="manuscript__foot"></view>
+    </scroll-view>
+  </view>
+
+  <!-- ==================== TAB 1: 代码极客 ==================== -->
+  <view class="manuscript" wx:if="{{activeTab === 1}}">
+    <scroll-view scroll-y="true" class="manuscript__scroll" enhanced show-scrollbar="{{false}}">
+
+      <!-- Error input block -->
+      <view class="block">
+        <view class="block__label">
+          <text class="block__label-num">01</text>
+          <text class="block__label-text">粘贴报错信息</text>
+        </view>
+
+        <view class="codex-editor">
+          <view class="codex-editor__gutter">
+            <text wx:for="{{codegeek.lineNumbers}}" wx:key="*this" class="codex-editor__gutter-num">{{item}}</text>
+          </view>
+          <textarea
+            class="codex-editor__field"
+            placeholder="粘贴终端报错、编译错误或异常堆栈信息…"
+            placeholder-style="color: rgba(224,218,200,0.18);"
+            value="{{codegeek.errorText}}"
+            bindinput="handleErrorInput"
+            auto-height="{{false}}"
+            maxlength="5000"
+            show-confirm-bar="{{false}}"
+            adjust-position="{{false}}"
+          ></textarea>
+        </view>
+        <view class="codex-editor__status">
+          <text class="codex-editor__status-count">{{codegeek.errorText.length}} / 5000</text>
+          <text class="codex-editor__status-clear" bindtap="handleClearInput" wx:if="{{codegeek.errorText}}">清空</text>
+        </view>
+      </view>
+
+      <!-- Diagnose button -->
+      <view class="block">
+        <button
+          class="cta cta--secondary {{codegeek.loading ? 'cta--busy' : ''}}"
+          bindtap="handleDiagnose"
+          disabled="{{codegeek.loading || !codegeek.errorText}}"
+          hover-class="cta--pressed"
+        >
+          <block wx:if="{{codegeek.loading}}">
+            <view class="spinner spinner--light"></view>
+            <text class="cta__text">AI 诊断分析中…</text>
+          </block>
+          <block wx:else>
+            <text class="cta__sigil">&gt;</text>
+            <text class="cta__text">一键诊断</text>
+          </block>
+        </button>
+        <text class="cta__footnote" wx:if="{{!codegeek.errorText}}">请先输入报错信息后再进行诊断</text>
+      </view>
+
+      <!-- Diagnosis result -->
+      <view class="block block--result" wx:if="{{codegeek.result}}">
+        <view class="block__label block__label--with-action">
+          <view class="block__label-left">
+            <text class="block__label-num">02</text>
+            <text class="block__label-text">诊断报告</text>
+          </view>
+          <view class="block__label-action" bindtap="handleCopyResult">
+            <text class="block__label-action-text">{{codegeek.copied ? '已复制' : '复制'}}</text>
+          </view>
+        </view>
+
+        <!-- Tags -->
+        <view class="tag-cluster" wx:if="{{codegeek.result.tags && codegeek.result.tags.length}}">
+          <view class="tag-cluster__chip" wx:for="{{codegeek.result.tags}}" wx:key="index" wx:for-item="tag">
+            {{tag}}
+          </view>
+        </view>
+
+        <!-- Error cause -->
+        <view class="finding" wx:if="{{codegeek.result.cause}}">
+          <text class="finding__kicker">错误原因</text>
+          <text class="finding__body">{{codegeek.result.cause}}</text>
+        </view>
+
+        <!-- Solution -->
+        <view class="finding" wx:if="{{codegeek.result.solution}}">
+          <text class="finding__kicker">解决方案</text>
+          <text class="finding__body">{{codegeek.result.solution}}</text>
+        </view>
+
+        <!-- Code fix -->
+        <view class="finding" wx:if="{{codegeek.result.code}}">
+          <text class="finding__kicker">修正代码</text>
+          <view class="codex-block">
+            <text class="codex-block__content">{{codegeek.result.code}}</text>
+          </view>
+        </view>
+
+        <!-- Detail analysis -->
+        <view class="finding" wx:if="{{codegeek.result.detail}}">
+          <text class="finding__kicker">详细分析</text>
+          <view class="prose">
+            <rich-text nodes="{{codegeek.result.detailNodes}}"></rich-text>
+          </view>
+        </view>
+
+        <view class="block__finis"><text class="block__finis-text">— fin —</text></view>
+      </view>
+
+      <view class="manuscript__foot"></view>
+    </scroll-view>
+  </view>
+
+  <!-- ==================== TAB 2：历史记录 ==================== -->
+  <view class="manuscript" wx:if="{{activeTab === 2}}">
+    <scroll-view scroll-y="true" class="manuscript__scroll" enhanced show-scrollbar="{{false}}">
+
+      <!-- 加载中 -->
+      <view class="block" wx:if="{{history.loading}}">
+        <view class="dropzone__state">
+          <view class="spinner spinner--amber"></view>
+          <text class="dropzone__state-text">加载记录中…</text>
+        </view>
+      </view>
+
+      <!-- 空状态 -->
+      <view class="block block--empty" wx:if="{{history.items.length === 0 && !history.loading}}">
+        <view class="empty-state">
+          <view class="empty-state__mark">
+            <view class="empty-state__ring"></view>
+          </view>
+          <text class="empty-state__text">暂无记录</text>
+          <text class="empty-state__hint">试试课堂助手拍张照，或粘贴一段报错信息来诊断吧</text>
+        </view>
+      </view>
+
+      <!-- 历史列表 -->
+      <block wx:if="{{history.items.length > 0}}">
+        <view class="block">
+          <view class="block__label">
+            <text class="block__label-num">{{history.total || history.items.length}}</text>
+            <text class="block__label-text">条记录</text>
+          </view>
+        </view>
+
+        <view class="timeline">
+          <view
+            class="timeline__item {{item._id === history.expandedId ? 'timeline__item--expanded' : ''}}"
+            wx:for="{{history.items}}"
+            wx:key="_id"
+            wx:for-item="item"
+          >
+            <view class="timeline__dot {{item.type === 'classroom' ? 'timeline__dot--gold' : 'timeline__dot--rose'}}"></view>
+
+            <view class="timeline__card"
+              bindtap="handleExpandHistory"
+              data-id="{{item._id}}"
+            >
+              <!-- 类型 + 时间 -->
+              <view class="timeline__head">
+                <view class="timeline__badge {{item.type === 'classroom' ? 'timeline__badge--gold' : 'timeline__badge--rose'}}">
+                  {{item.type === 'classroom' ? '课堂' : '诊断'}}
+                </view>
+                <text class="timeline__time">{{item.timeAgo}}</text>
+              </view>
+
+              <!-- 预览 -->
+              <text class="timeline__preview">{{item.title || item.inputPreview || '（无标题）'}}</text>
+
+              <!-- 展开详情 -->
+              <view class="timeline__detail" wx:if="{{item._id === history.expandedId}}">
+                <view class="timeline__divider"></view>
+
+                <block wx:if="{{item.type === 'classroom'}}">
+                  <view class="prose">
+                    <rich-text nodes="{{item.outputNodes}}"></rich-text>
+                  </view>
+                </block>
+
+                <block wx:if="{{item.type === 'codegeek'}}">
+                  <view class="tag-cluster" wx:if="{{item.output.tags && item.output.tags.length}}">
+                    <view class="tag-cluster__chip" wx:for="{{item.output.tags}}" wx:key="index" wx:for-item="tag">{{tag}}</view>
+                  </view>
+                  <view class="finding" wx:if="{{item.output.cause}}">
+                    <text class="finding__kicker">错误原因</text>
+                    <text class="finding__body">{{item.output.cause}}</text>
+                  </view>
+                  <view class="finding" wx:if="{{item.output.solution}}">
+                    <text class="finding__kicker">解决方案</text>
+                    <text class="finding__body">{{item.output.solution}}</text>
+                  </view>
+                  <view class="finding" wx:if="{{item.output.code}}">
+                    <text class="finding__kicker">修正代码</text>
+                    <view class="codex-block">
+                      <text class="codex-block__content">{{item.output.code}}</text>
+                    </view>
+                  </view>
+                </block>
+
+                <view class="timeline__actions">
+                  <view class="timeline__delete" catchtap="handleDeleteHistory" data-id="{{item._id}}">
+                    <text class="timeline__delete-text">删除此记录</text>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 加载更多 -->
+        <view class="block" wx:if="{{history.hasMore}}">
+          <view class="load-more" bindtap="handleLoadMoreHistory">
+            <text class="load-more__text">{{history.loadingMore ? '加载中…' : '加载更多'}}</text>
+          </view>
+        </view>
+      </block>
+
+      <view class="manuscript__foot"></view>
+    </scroll-view>
+  </view>
+
+</view>

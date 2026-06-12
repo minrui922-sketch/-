@@ -1,0 +1,24 @@
+/* ============================================
+   Codex · Global Design System
+   Midnight Library — warm, refined, editorial
+   ============================================ */
+
+page {
+  font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
+  background-color: #1a1714;
+  color: #e0dac8;
+  font-size: 28rpx;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+
+view, text, image, scroll-view, textarea, button {
+  box-sizing: border-box;
+}
+
+/* Hide all scrollbars — keep the UI clean */
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  background: transparent;
+}

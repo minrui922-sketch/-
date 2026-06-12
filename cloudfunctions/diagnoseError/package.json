@@ -1,0 +1,9 @@
+{
+  "name": "diagnoseError",
+  "version": "1.0.0",
+  "description": "诊断代码报错，调用 LLM 生成修复方案",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

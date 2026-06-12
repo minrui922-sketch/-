@@ -1,0 +1,9 @@
+{
+  "name": "history",
+  "version": "1.0.0",
+  "description": "历史记录查询与删除",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

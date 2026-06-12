@@ -1,0 +1,18 @@
+# 微信小程序
+miniprogram_npm/
+
+# 云函数依赖
+cloudfunctions/*/node_modules/
+
+# 私有配置（含微信 AppID）
+project.private.config.json
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 注意：cloudfunctions/*/config.json 中的 env 字段包含 API Key
+# 建议在微信云开发控制台设置环境变量，然后删除 config.json 中的 env 字段
+# 本文件不排除 config.json，因为它还包含 timeout/permissions 等部署配置

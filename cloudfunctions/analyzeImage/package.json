@@ -1,0 +1,9 @@
+{
+  "name": "analyzeImage",
+  "version": "1.0.0",
+  "description": "分析课堂图片，生成 AI 核心摘要",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}
